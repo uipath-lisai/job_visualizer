@@ -1,10 +1,7 @@
 $(document).ready(function(){
     var main = function(){
-        group_example();
-        //analyze_schedule_raw();
-        //test_schedule_expand();
-        //test_weekdays();
-        test_schedule_start_time();
+        //group_example();
+        real_example("2019-06-10 00:00:00", "2019-06-10 23:59:59");
     }
     
     var group_example = function(){
@@ -24,9 +21,9 @@ $(document).ready(function(){
         {id: 4, content: 'Job4', start: '2010-08-26', end: '2010-09-02', group: 3},
         {id: 5, content: 'Job5', start: '2010-08-28', end: '2010-08-29', group: 1},
         {id: 7, content: 'Job7', start: '2010-08-30', end: '2010-09-03', group: 1},
-        {id: 8, content: 'Job8', start: '2010-09-04T12:00:00', end: '2010-09-04T24:00:00', group: 2},
-        {id: 10, content: 'Sch1', type: 'point', start: '2010-08-23T00:00:00', group: 1},
-        {id: 11, content: 'Sch2', type: 'point', start: '2010-08-27T00:00:00', group: 1}
+        {id: 8, content: 'Job8', title: 'Job8, Status:Success, Start: 2010-09-04T12:00:00, Duration: 1hour', start: '2010-09-04T12:00:00', end: '2010-09-04T24:00:00', group: 2},
+        {id: 10, content: 's', title: 'Sch1, start:2010-08-23T00:00:00', type: 'point', start: '2010-08-23T00:00:00', group: 1},
+        {id: 11, content: 's', title: 'Sch2, start:2010-08-27T00:00:00', type: 'point', start: '2010-08-27T00:00:00', group: 1}
       ]);
 
       var container = document.getElementById('visualization');
@@ -38,16 +35,146 @@ $(document).ready(function(){
 
       var timeline = new vis.Timeline(container, items, groups, options);
     };
-
-    // 
     
-    var analyze_schedule_raw = function(){
-        var schedule_data = $.grep(schedule_raw_data(), function(value, index){
+    var real_example = function(span_start, span_end){
+        var in_out = {
+            index: 0,
+            groups: [],
+            items: []
+        };
+        
+        schedule_entry(in_out, span_start, span_end);
+
+        job_entry(in_out, span_start, span_end);
+
+        
+        var vis_groups = new vis.DataSet(in_out.groups);
+        var vis_items = new vis.DataSet(in_out.items);
+        var container = document.getElementById('visualization');
+
+        var options = {
+            editable: false,   // default for all items
+            horizontalScroll: false,
+            tooltip: {overflowMethod: 'cap'}
+        };
+        new vis.Timeline(container, vis_items, vis_groups, options);
+    }
+    
+    var job_entry = function(params, span_start, span_end){
+        var job_data = jobs_raw_data().filter(function(value){
+            var condition_type = value.SourceType === "Schedule";
+            var condition_time = verify_date(new Date(value.StartTime), span_start, span_end) || verify_date(new Date(value.EndTime), span_start, span_end);
+            return condition_type && condition_time;
+        });
+                
+        var machine_groups = {}; // MachineName : [origin_obj]
+        job_data.forEach(function(value){
+            if(value.HostMachineName in machine_groups){
+                // add job to the found group
+                machine_groups[value.HostMachineName].push(value);
+            }else{
+                machine_groups[value.HostMachineName] = [value];
+            }
+        });
+        
+        
+        for(var key in machine_groups){
+            params.index++;
+            
+            var jobs_arr = machine_groups[key];
+            params.groups.push({
+                id: params.index,
+                content: key
+            });
+            
+            jobs_arr.forEach(function(job){
+                params.items.push({
+                    content: job.ReleaseName,
+                    title: "Name: " + job.ReleaseName + ",<br>Status: " + job.State,
+                    type: 'range',
+                    start: job.StartTime,
+                    end: job.EndTime,
+                    group: params.index
+                });
+            });
+        }
+        
+
+    };
+   
+    var schedule_entry = function(params, span_start, span_end){
+        var schedule_data = $.grep(schedule_raw_data(), function(value){
             return value.Enabled === true;
         });
+
+        var env_schedules = {}; // {1: {envId: 1, envName: a, schedules: [{cron:}]}}
+        schedule_data.forEach(function(value){
+            if(value.EnvironmentId in env_schedules){
+                // add schedule to the found environment
+                var env_schedule = env_schedules[value.EnvironmentId];
+                env_schedule.schedules.push({
+                    schedule_cron: value.StartProcessCron,
+                    schedule_name: value.Name,
+                    is_schedule_minutely: JSON.parse(value.StartProcessCronDetails).type == 0,
+                    schedule_summary: value.StartProcessCronSummary,
+                    environment_name: value.EnvironmentName,
+                    package: value.PackageName,
+                    release_name: value.ReleaseName
+                });
+            }else{
+                params.index++;
+                env_schedules[value.EnvironmentId] = {
+                    id: params.index,
+                    content: value.EnvironmentName,
+                    envId: value.EnvironmentId,
+                    schedules:[{
+                        schedule_cron: value.StartProcessCron,
+                        schedule_name: value.Name,
+                        is_schedule_minutely: JSON.parse(value.StartProcessCronDetails).type == 0,
+                        schedule_summary: value.StartProcessCronSummary,
+                        environment_name: value.EnvironmentName,
+                        package: value.PackageName,
+                        release_name: value.ReleaseName
+                    }]
+                };
+            }
+        });
+                
+        for(var key in env_schedules){
+            var schedule_obj = env_schedules[key];
+            params.groups.push({
+               id:  schedule_obj.id,
+               content: schedule_obj.content
+            });
+            
+            schedule_obj.schedules.forEach(function(cron){
+                if(cron.is_schedule_minutely){
+                    params.items.push({
+                       content: cron.schedule_name + ", " + cron.schedule_summary, 
+                       title: "Name: " + cron.schedule_name + ",<br>Environment: " + cron.environment_name + ",<br>Package: " + cron.package + ",<br>Start: " + cron.schedule_summary,
+                       type: 'range', 
+                       start: span_start,
+                       end: span_end,
+                       group: schedule_obj.id
+                    });
+                }else{
+                    var start_times = schedule_start_time(cron.schedule_cron, span_start, span_end);
+                    start_times.forEach(function(starts){
+                        params.items.push({
+                           content: 's', // content is meaningless here
+                           title: "Name: " + cron.schedule_name + ",<br>Environment: " + cron.environment_name + ",<br>Package: " + cron.package + ",<br>Start: " + starts,
+                           type: 'point', 
+                           start: starts, 
+                           group: schedule_obj.id
+                        });
+                    });    
+                }
+            });
+        }
         
     };
     
+    // return array of Dates
     var schedule_start_time = function(cron, span_start, span_end){
         // second, minute, hour, day, month, dayofweek, year
         var cron_arr = cron.split(" ");
@@ -60,9 +187,6 @@ $(document).ready(function(){
             year: range(Number(span_start.split("-")[0]), Number(span_end.split("-")[0]), 1)
         };
         
-        console.log(cron_schedule);
-        
-        //return [];
         return good_dates(cron_schedule, span_start, span_end);
     };
     
@@ -79,8 +203,6 @@ $(document).ready(function(){
                        assemble_by_weekday(result_dates, v_year, v_month, cron_schedule, span_start, span_end);
                    }
                    
-               }{
-                   //console.log(new Date(v_year,v_month));
                }
            }) 
         });
@@ -140,16 +262,10 @@ $(document).ready(function(){
     
     var convert_number = function(dayofweek){
         var map = {
-            "MON": 1,
-            "TUE": 2,
-            "WED": 3,
-            "THU": 4,
-            "FRI": 5,
-            "SAT": 6,
-            "SUN": 0
+            "MON": 1, "TUE": 2, "WED": 3, "THU": 4, "FRI": 5, "SAT": 6, "SUN": 0
         };
         
-        Object.keys(map).forEach(function(value, index){
+        Object.keys(map).forEach(function(value){
             dayofweek = dayofweek.replace(value, map[value]);
         });
         
@@ -264,7 +380,7 @@ $(document).ready(function(){
             d.setDate(d.getDate() + 7); // next week
         }
         return weekdays;
-    }
+    };
     
     var range = function(start, stop, step){
         var a = [start];
@@ -273,7 +389,7 @@ $(document).ready(function(){
             a.push(b += step || 1);
         }
         return a;
-    }
+    };
     
     var schedule_raw_data = function(){
         return [
@@ -302,7 +418,7 @@ $(document).ready(function(){
               "Id": 2
             },
             {
-              "Enabled": false,
+              "Enabled": true,
               "Name": "test-cron-daily",
               "ReleaseId": 3,
               "ReleaseKey": "c8f3c73d-e815-49db-a490-83235b25344d",
@@ -326,7 +442,7 @@ $(document).ready(function(){
               "Id": 15
             },
             {
-              "Enabled": false,
+              "Enabled": true,
               "Name": "test-cron-weekly",
               "ReleaseId": 3,
               "ReleaseKey": "c8f3c73d-e815-49db-a490-83235b25344d",
@@ -334,7 +450,7 @@ $(document).ready(function(){
               "PackageName": "test-process-user03",
               "EnvironmentName": "horizon-hamburg",
               "EnvironmentId": "2",
-              "StartProcessCron": "0 0 0 ? * MON,TUE *",
+              "StartProcessCron": "0 0 12 ? * MON,TUE *",
               "StartProcessCronDetails": "{\"type\":3,\"minutely\":{},\"hourly\":{},\"daily\":{},\"weekly\":{\"weekdays\":[{\"id\":\"MON\",\"weekly\":\"Monday\",\"monthly\":\"Monday\"},{\"id\":\"TUE\",\"weekly\":\"Tuesday\",\"monthly\":\"Tuesday\"}],\"atHour\":0,\"atMinute\":0},\"monthly\":{\"weekdays\":[]},\"advancedCronExpression\":\"\"}",
               "StartProcessCronSummary": "At 12:00 AM, only on Monday and Tuesday",
               "StartProcessNextOccurrence": null,
@@ -350,7 +466,7 @@ $(document).ready(function(){
               "Id": 16
             },
             {
-              "Enabled": false,
+              "Enabled": true,
               "Name": "test-cron-monthly",
               "ReleaseId": 3,
               "ReleaseKey": "c8f3c73d-e815-49db-a490-83235b25344d",
@@ -398,7 +514,119 @@ $(document).ready(function(){
               "Id": 18
             }
           ]
-    }
+    };
+    
+    var jobs_raw_data = function(){
+        return [
+            {
+              "Key": "66b0d62e-cb16-4bb6-9887-7fc4167d99b5",
+              "StartTime": "2019-06-10T07:35:17.523Z",
+              "EndTime": "2019-06-10T08:35:20.213Z",
+              "State": "Successful",
+              "Source": "test-cron-weekly",
+              "SourceType": "Schedule",
+              "BatchExecutionKey": "6aaebdb8-20ea-4ec9-954e-aec16bc41461",
+              "Info": "ジョブは完了しました",
+              "CreationTime": "2019-02-12T15:34:00.29Z",
+              "StartingScheduleId": 1,
+              "ReleaseName": "test-process-user03_horizon-hamburg",
+              "Type": "Unattended",
+              "InputArguments": null,
+              "OutputArguments": "{}",
+              "HostMachineName": "LAPTOP-54PF641Q",
+              "Id": 86
+            },
+            {
+              "Key": "cc99c8fe-fa53-43ce-9cb8-320d9769efcb",
+              "StartTime": "2019-06-10T03:20:00.43Z",
+              "EndTime": "2019-06-10T04:20:08.32Z",
+              "State": "Successful",
+              "Source": "test-cron-weekly",
+              "SourceType": "Schedule",
+              "BatchExecutionKey": "e53b0d0a-0dbf-4b36-a946-105c1ce6fcbf",
+              "Info": "Job completed",
+              "CreationTime": "2019-04-24T03:20:00.35Z",
+              "StartingScheduleId": 10,
+              "ReleaseName": "test-process-user03_horizon-hamburg",
+              "Type": "Unattended",
+              "InputArguments": null,
+              "OutputArguments": "{}",
+              "HostMachineName": "EC2AMAZ-PP9F3RB",
+              "Id": 4247
+            },
+            {
+              "Key": "cc99c8fe-fa53-43ce-9cb8-320d9769efcb",
+              "StartTime": "2019-06-10T06:20:00.43Z",
+              "EndTime": "2019-06-10T07:20:08.32Z",
+              "State": "Successful",
+              "Source": "test-cron-weekly",
+              "SourceType": "Schedule",
+              "BatchExecutionKey": "e53b0d0a-0dbf-4b36-a946-105c1ce6fcbf",
+              "Info": "Job completed",
+              "CreationTime": "2019-04-24T03:20:00.35Z",
+              "StartingScheduleId": 10,
+              "ReleaseName": "test-process-user03_horizon-hamburg",
+              "Type": "Unattended",
+              "InputArguments": null,
+              "OutputArguments": "{}",
+              "HostMachineName": "EC2AMAZ-PP9F3RB",
+              "Id": 4248
+            }
+        ];
+    };
+    
+    var robot_raw_data = function(){
+        return [
+            {
+              "LicenseKey": null,
+              "MachineName": "EC2AMAZ-AIO7BTU",
+              "MachineId": 107,
+              "Name": "rt-EC2AMAZ-AIO7BTU",
+              "Username": "administrator",
+              "Description": "alive",
+              "Version": "18.2.6.0",
+              "Type": "Unattended",
+              "HostingType": "Standard",
+              "Password": null,
+              "CredentialType": null,
+              "RobotEnvironments": "sai-test",
+              "Id": 120,
+              "ExecutionSettings": null
+            },
+            {
+              "LicenseKey": null,
+              "MachineName": "EC2AMAZ-47UQ88B",
+              "MachineId": 108,
+              "Name": "rt-EC2AMAZ-47UQ88B",
+              "Username": "administrator",
+              "Description": "alive",
+              "Version": "18.2.6.0",
+              "Type": "Unattended",
+              "HostingType": "Standard",
+              "Password": null,
+              "CredentialType": null,
+              "RobotEnvironments": "sai-test",
+              "Id": 121,
+              "ExecutionSettings": null
+            },
+            {
+              "LicenseKey": null,
+              "MachineName": "EC2AMAZ-HTBUA20",
+              "MachineId": 109,
+              "Name": "rt-EC2AMAZ-HTBUA20",
+              "Username": "administrator",
+              "Description": "alive",
+              "Version": "18.2.6.0",
+              "Type": "Unattended",
+              "HostingType": "Standard",
+              "Password": null,
+              "CredentialType": null,
+              "RobotEnvironments": "sai-test",
+              "Id": 122,
+              "ExecutionSettings": null
+            }            
+        ];
+    };
     
     
     main();
