@@ -43,3 +43,23 @@ div.vis-readonly.vis-selected {
 .vis-label.vis-group-red {
     color: mediumvioletred;
 }
+
+.schedule_item {
+    background-color: palegreen;
+    border-color:palegreen;
+}
+
+.job_item_success {
+    background-color: skyblue;
+    border-color:skyblue;
+}
+
+.job_item_pending {
+    background-color: rosybrown;
+    border-color:rosybrown;
+}
+
+.job_item_failed {
+    background-color: darkorange;
+    border-color:darkorange;
+}
