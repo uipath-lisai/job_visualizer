@@ -326,41 +326,7 @@ $(document).ready(function(){
         
         return dayofweek;
     };
-    
-    /**
-    * Test method
-    **/
-    var test_schedule_expand = function(){
-        console.log(schedule_expand("minute", "1"));
-        console.log(schedule_expand("minute", "1-3"));
-        console.log(schedule_expand("minute", "1,2,3,6"));
-        console.log(schedule_expand("minute", "*"));
-        console.log(schedule_expand("minute", "2/*"));
-        console.log(schedule_expand("minute", "2/1"));
-        console.log(schedule_expand("minute", "20/2"));
-        console.log(schedule_expand("minute", "?"));
-        console.log(schedule_expand("dayofweek", "?"));
-        console.log(schedule_expand("day", "?"));
         
-    };
-    
-    var test_weekdays = function(){
-        console.log(week_days(2019,0,1)); // Jan
-        console.log(week_days(2019,6,2)); // July
-        console.log(week_days(2019,6,3));
-        console.log(week_days(2019,6,4));
-        console.log(week_days(2019,6,5));
-        console.log(week_days(2019,6,6));
-        console.log(week_days(2019,6,0));
-    };
-    
-    var test_schedule_start_time = function(){
-        console.log("0 0 1 1/1 * ? *" + "  , "+"2019-06-10 00:00:00"+"  , "+"2019-06-10 23:59:59");
-        console.log(schedule_start_time("0 0 1 1/1 * ? *", "2019-06-10 00:00:00", "2019-06-10 23:59:59"));
-        console.log("0 0 0 ? * MON,TUE *" + "  , "+"2019-10-10 00:00:00"+"  , "+"2019-10-17 23:59:59");
-        console.log(schedule_start_time("0 0 0 ? * MON,TUE *", "2019-10-10 00:00:00", "2019-10-17 23:59:59"));
-    };
-    
     /**
     * Does not support complex interval like "1-3/4".
     * interval is type of String.
@@ -576,7 +542,7 @@ $(document).ready(function(){
             {
               "Key": "66b0d62e-cb16-4bb6-9887-7fc4167d99b5",
               "StartTime": "2019-06-10T07:35:17.523Z",
-              "EndTime": "2019-06-10T08:35:20.213Z",
+              "EndTime": "2019-06-10T09:35:20.213Z",
               "State": "Successful",
               "Source": "test-cron-weekly",
               "SourceType": "Schedule",
@@ -593,8 +559,8 @@ $(document).ready(function(){
             },
             {
               "Key": "cc99c8fe-fa53-43ce-9cb8-320d9769efcb",
-              "StartTime": "2019-06-10T03:20:00.43Z",
-              "EndTime": "2019-06-10T04:20:08.32Z",
+              "StartTime": "2019-06-09T17:20:00.43Z",
+              "EndTime": "2019-06-09T21:20:08.32Z",
               "State": "Successful",
               "Source": "test-cron-weekly",
               "SourceType": "Schedule",
@@ -612,7 +578,7 @@ $(document).ready(function(){
             {
               "Key": "cc99c8fe-fa53-43ce-9cb8-320d9769efcb",
               "StartTime": "2019-06-10T08:20:00.43Z",
-              "EndTime": "2019-06-10T010:20:08.32Z",
+              "EndTime": "2019-06-10T10:20:08.32Z",
               "State": "Pending",
               "Source": "test-cron-weekly",
               "SourceType": "Schedule",
@@ -629,7 +595,7 @@ $(document).ready(function(){
             },
             {
               "Key": "cc99c8fe-fa53-43ce-9cb8-320d9769efcb",
-              "StartTime": "2019-06-10T06:20:00.43Z",
+              "StartTime": "2019-06-10T04:20:00.43Z",
               "EndTime": "2019-06-10T07:20:08.32Z",
               "State": "Faulted",
               "Source": "test-cron-weekly",
