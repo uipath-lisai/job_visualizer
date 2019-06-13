@@ -85,6 +85,10 @@ $(document).ready(function(){
     var job_entry = function(params, span_start, span_end){
         var job_data = jobs_raw_data().filter(function(value){
             var condition_type = value.SourceType === "Schedule"; // start by schedule
+            if("Pending" === value.State){
+                value.StartTime = value.CreationTime;
+                value.EndTime = span_end;
+            }
             var condition_time = verify_date(new Date(value.StartTime), span_start, span_end) || verify_date(new Date(value.EndTime), span_start, span_end);
             return condition_type && condition_time;
         });
@@ -577,14 +581,14 @@ $(document).ready(function(){
             },
             {
               "Key": "cc99c8fe-fa53-43ce-9cb8-320d9769efcb",
-              "StartTime": "2019-06-10T08:20:00.43Z",
-              "EndTime": "2019-06-10T10:20:08.32Z",
+              "StartTime": null,
+              "EndTime": null,
               "State": "Pending",
               "Source": "test-cron-weekly",
               "SourceType": "Schedule",
               "BatchExecutionKey": "e53b0d0a-0dbf-4b36-a946-105c1ce6fcbf",
               "Info": "Job completed",
-              "CreationTime": "2019-04-24T03:20:00.35Z",
+              "CreationTime": "2019-06-10T04:20:00.43Z",
               "StartingScheduleId": 10,
               "ReleaseName": "test-process-user03_sai-test",
               "Type": "Unattended",
