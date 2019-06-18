@@ -4,6 +4,10 @@ $global:data_job = "data\job.json"
 $global:data_span = "data\span.json"
 $global:config_file = "config.json"
 
+if(!(test-path "data")){
+    New-Item -ItemType Directory -Force -Path "data"
+}
+
 try {
     $global:config = Get-Content "$config_file" -Raw -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue | ConvertFrom-Json -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
 } catch {
