@@ -67,3 +67,7 @@ div.vis-readonly.vis-selected {
     background-color: darkorange;
     border-color:darkorange;
 }
+
+.vis-label.group_item_warn {
+    color: red;
+}
