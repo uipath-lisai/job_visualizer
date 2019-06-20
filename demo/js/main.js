@@ -4,39 +4,6 @@ $(document).ready(function(){
         real_example("2019-06-10 00:00:00", "2019-06-10 23:59:59");
     }
     
-    var group_example = function(){
-      // create groups to highlight groupUpdate
-      var groups = new vis.DataSet([
-        {id: 1, content: 'Machine 1', className: 'vis-group-red', envId: 1},
-        {id: 2, content: 'Machine 2', className: 'vis-group-yellow', envId: 2},
-        {id: 3, content: 'Machine 3', className: 'vis-group-blue', envId: 3}  
-      ]);
-
-
-      // create a DataSet with items
-      var items = new vis.DataSet([
-        {id: 1, content: 'Job1', type: 'range', start: '2010-08-23T00:00:00', end: '2010-08-23T23:59:00', group: 3},
-        {id: 2, content: 'Job2', type: 'range', start: '2010-08-24T00:00:00', end: '2010-08-24T23:59:00', group: 2},
-        {id: 3, content: 'Job3', type: 'range', start: '2010-08-25T00:00:00', end: '2010-08-25T23:59:00', group: 1},
-        {id: 4, content: 'Job4', start: '2010-08-26', end: '2010-09-02', group: 3},
-        {id: 5, content: 'Job5', start: '2010-08-28', end: '2010-08-29', group: 1},
-        {id: 7, content: 'Job7', start: '2010-08-30', end: '2010-09-03', group: 1},
-        {id: 8, content: 'Job8', title: 'Job8, Status:Success, Start: 2010-09-04T12:00:00, Duration: 1hour', start: '2010-09-04T12:00:00', end: '2010-09-04T24:00:00', group: 2},
-        {id: 10, content: 's', title: 'Sch1, start:2010-08-23T00:00:00', type: 'point', start: '2010-08-23T00:00:00', group: 1},
-        {id: 11, content: 's', title: 'Sch2, start:2010-08-27T00:00:00', type: 'point', start: '2010-08-27T00:00:00', group: 1}
-      ]);
-
-      var container = document.getElementById('visualization');
-
-      var options = {
-        editable: false,   // default for all items
-        orientation: 'both',
-        horizontalScroll: false
-      };
-
-      var timeline = new vis.Timeline(container, items, groups, options);
-    };
-    
     var real_example = function(span_start, span_end){
         // Should define local var.
         in_out = {
@@ -658,7 +625,7 @@ $(document).ready(function(){
               "LicenseKey": null,
               "MachineName": "EC2AMAZ-AIO7BTU",
               "MachineId": 107,
-              "Name": "rt-EC2AMAZ-AIO7BTU",
+              "Name": "robot-A",
               "Username": "administrator",
               "Description": "alive",
               "Version": "18.2.6.0",
@@ -674,7 +641,7 @@ $(document).ready(function(){
               "LicenseKey": null,
               "MachineName": "EC2AMAZ-47UQ88B",
               "MachineId": 108,
-              "Name": "rt-EC2AMAZ-47UQ88B",
+              "Name": "robot-B",
               "Username": "administrator",
               "Description": "alive",
               "Version": "18.2.6.0",
@@ -690,7 +657,7 @@ $(document).ready(function(){
               "LicenseKey": null,
               "MachineName": "EC2AMAZ-HTBUA20",
               "MachineId": 109,
-              "Name": "rt-EC2AMAZ-HTBUA20",
+              "Name": "robot-C",
               "Username": "administrator",
               "Description": "alive",
               "Version": "18.2.6.0",
@@ -706,7 +673,7 @@ $(document).ready(function(){
               "LicenseKey": null,
               "MachineName": "EC2AMAZ-USJB5Q8",
               "MachineId": 104,
-              "Name": "rt-EC2AMAZ-USJB5Q8",
+              "Name": "robot-D",
               "Username": "administrator",
               "Description": null,
               "Version": "18.2.6.0",

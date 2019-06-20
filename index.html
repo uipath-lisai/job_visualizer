@@ -7,7 +7,40 @@
 </head>
 <body>
     <div id="visualization"></div>
-    
+    <div id="explain" style="margin-top: 30px">
+        <div class="vis-item vis-point schedule_item vis-readonly" style="">
+            <div class="vis-item vis-dot schedule_item vis-readonly" style="margin-top: 3px"></div>
+        </div>
+        <div style="margin-left: 60px">Scheduler</div>
+        <div class="vis-item vis-range schedule_item vis-readonly" style="width: 30px;margin-top: 10px">
+            <div class="vis-item-overflow">
+                <div class="vis-item-content" style="left: 0px; width: calc(100% - 0px);"></div>
+            </div>
+            <div class="vis-item-visible-frame"></div>
+        </div>
+        <div style="margin-left: 60px;margin-top: 7px">Scheduler for every minute</div>
+        <div class="vis-item vis-range job_item_success vis-readonly" style="width: 30px;margin-top: 10px">
+            <div class="vis-item-overflow">
+                <div class="vis-item-content" style="left: 0px; width: calc(100% - 0px);"></div>
+            </div>
+            <div class="vis-item-visible-frame"></div>
+        </div>
+        <div style="margin-left: 60px;margin-top: 12px">Successful job</div>
+        <div class="vis-item vis-range job_item_failed vis-readonly" style="width: 30px; margin-top: 10px">
+            <div class="vis-item-overflow">
+                <div class="vis-item-content" style="left: 0px; width: calc(100% - 0px);"></div>
+            </div>
+            <div class="vis-item-visible-frame"></div>
+        </div>
+        <div style="margin-left: 60px;margin-top: 12px">Failed job</div>
+        <div class="vis-item vis-range job_item_pending vis-readonly" style="width: 30px; margin-top: 10px">
+            <div class="vis-item-overflow">
+                <div class="vis-item-content" style="left: 0px; width: calc(100% - 0px);"></div>
+            </div>
+            <div class="vis-item-visible-frame"></div>
+        </div>
+        <div style="margin-left: 60px;margin-top: 12px">Pending job</div>
+    </div>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
