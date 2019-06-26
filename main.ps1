@@ -36,6 +36,7 @@ if ($resAccount.success -eq "True"){
 	exit 1
 }
 
+# Get Robot data
 $robotUri = $config.Orchestrator.url + "/odata/Robots"
 $resRobot = Invoke-RestMethod -Uri $robotUri -Method Get -ContentType $contentType -Headers $headers
 
@@ -46,6 +47,7 @@ Set-Content -Path $data_robot -Value $robotString -Encoding UTF8
 
 Write-Host "Saved Robot Data to $data_robot"
 
+# Get Scheduler data
 $scheduleUri = $config.Orchestrator.url + "/odata/ProcessSchedules"
 $resSchedule = Invoke-RestMethod -Uri $scheduleUri -Method Get -ContentType $contentType -Headers $headers
 
@@ -56,7 +58,11 @@ Set-Content -Path $data_schedule -Value $scheduleString -Encoding UTF8
 
 Write-Host "Saved Schedule Data to $data_schedule"
 
-$jobUri = $config.Orchestrator.url + "/odata/Jobs"
+# Get Job data
+$convertedStartTime = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId( (Get-DateÅ@$config.TimeSpan.Start), 'Greenwich Standard Time').ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+$convertedEndTime = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId( (Get-DateÅ@$config.TimeSpan.End), 'Greenwich Standard Time').ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+$jobFilter = "((CreationTime%20gt%20$convertedStartTime)%20and%20(CreationTime%20lt%20$convertedEndTime))"
+$jobUri = $config.Orchestrator.url + "/odata/Jobs" + '?$filter=' + $jobFilter
 $resJob = Invoke-RestMethod -Uri $jobUri -Method Get -ContentType $contentType -Headers $headers
 
 $jobJson = $resJob.value | ConvertTo-Json
