@@ -1,9 +1,9 @@
 {
     "Orchestrator":  {
-        "url": "https://oc.uipath-japan.net",
-        "tenant": "default",
-        "username": "sai",
-        "password": "!QAZxsw2"
+        "url": "",
+        "tenant": "",
+        "username": "",
+        "password": ""
     },
     "TimeSpan": {
         "Start": "2019-06-11 00:00:00",
