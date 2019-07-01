@@ -3,7 +3,7 @@ $(document).ready(function(){
         viewer(global_span_start, global_span_end);
     }
     
-    var viewer = function(span_start, span_end){
+      var viewer = function(span_start, span_end){
         // Should define local var.
         in_out = {
             index: 0,
@@ -28,6 +28,8 @@ $(document).ready(function(){
             editable: false,   // default for all items
             horizontalScroll: false,
             orientation: 'both',
+            zoomMin: 1000 * 60 * 60 * 24,             // one day 
+            zoomMax: 1000 * 60 * 60 * 24 * 31 * 2,    // two months
             tooltip: {overflowMethod: 'cap'}
         };
         new vis.Timeline(container, vis_items, vis_groups, options);
@@ -38,7 +40,7 @@ $(document).ready(function(){
         
         // TBD: add more filter here.
         robot_raw_data().filter(function(value){
-            return value.RobotEnvironments !== "";
+            return robot_filter(value);
         }).forEach(function(robot){
             params.index++;
             params.groups.push({
@@ -86,14 +88,7 @@ $(document).ready(function(){
             var group_id;
             if(machine_match.length == 0){
                 // Robot doesn't exists
-//                params.index++;
-//                params.groups.push({
-//                    id: params.index,
-//                    content: key,
-//                    title: "RobotName: UnKnown,\r\nMachineName: " + key,
-//                    is_alive: false
-//                });
-//                group_id = params.index;
+                continue;
             }else{
                 machine_match.forEach(function(group){
                     // Add job to group.
@@ -105,7 +100,7 @@ $(document).ready(function(){
             jobs_arr.forEach(function(job){
                 params.items.push({
                     content: job.ReleaseName,
-                    title: "Name: " + job.ReleaseName + ",<br>Span: " + span_total_seconds(job.StartTime, job.EndTime) +" seconds,<br>Status: " + job.State,
+                    title: "Name: " + job.ReleaseName + ",<br>Span: " + span_total_time(job.StartTime, job.EndTime) +"<br>Status: " + job.State,
                     type: 'range',
                     start: job.StartTime,
                     end: job.EndTime,
@@ -181,7 +176,7 @@ $(document).ready(function(){
                         start_times.forEach(function(starts){
                             params.items.push({
                                content: "", // content is meaningless here
-                               title: "Name: " + cron.schedule_name + ",<br>Environment: " + cron.environment_name + ",<br>Package: " + cron.package + ",<br>Start: " + starts,
+                               title: "Name: " + cron.schedule_name + ",<br>Environment: " + cron.environment_name + ",<br>Package: " + cron.package + ",<br>Summary: " + cron.schedule_summary + ",<br>Start: " + starts.toLocaleDateString() + " " + starts.toLocaleTimeString(),
                                type: 'point', 
                                start: starts,
                                className: 'schedule_item',
@@ -265,6 +260,21 @@ $(document).ready(function(){
     /*********************
     *  Utility method zone
     *********************/
+    var robot_filter = function(robot){
+        var filter = filter_raw_data();
+        var exclude_hit = filter.robot.excludes.filter(function(exc){
+            return exc.toLowerCase() == robot.Name.toLowerCase();
+        });
+        var include_hit = filter.robot.includes.filter(function(inc){
+            return inc.toLowerCase() == robot.Name.toLowerCase();
+        });
+        var include_condition = true;
+        if(filter.robot.includes.length > 0){
+            include_condition = include_hit.length > 0;
+        }
+        return robot.RobotEnvironments !== "" && exclude_hit.length == 0 && include_condition;
+    };
+    
     var group_class = function(robot){
         if(is_robot_alive(robot)){
             return "group_item_normal";
@@ -277,9 +287,10 @@ $(document).ready(function(){
         return robot.MachineName != undefined && robot.RobotEnvironments != "";
     }
     
-    var span_total_seconds = function(start, end){
+    var span_total_time = function(start, end){
         var diff = Math.abs(new Date(start) - new Date(end));
-        return Math.ceil(diff/1000);
+        //return Math.ceil(diff/1000);
+        return moment.duration(diff).humanize();
     };
     
     
@@ -434,24 +445,26 @@ $(document).ready(function(){
         return a;
     };
     
-    // DATA
+    /*********************
+    *  DATA
+    *********************/
     
     
     var schedule_raw_data = function(){
-        console.log(global_schedule_list);
         return global_schedule_list;
     };
     
     var jobs_raw_data = function(){
-        console.log(global_job_list);
         return global_job_list;
     };
     
     var robot_raw_data = function(){
-        console.log(global_robot_list);
         return global_robot_list;
     };
     
+    var filter_raw_data = function(){
+        return global_filter;
+    };
     
     main();
 });

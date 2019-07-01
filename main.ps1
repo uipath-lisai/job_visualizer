@@ -2,6 +2,7 @@ $global:data_robot = "data\robot.json"
 $global:data_schedule = "data\schedule.json"
 $global:data_job = "data\job.json"
 $global:data_span = "data\span.json"
+$global:data_filter = "data\filter.json"
 $global:config_file = "config.json"
 
 if(!(test-path "data")){
@@ -76,5 +77,11 @@ $timeSpanStart = "global_span_start = '" + $config.TimeSpan.Start + "';"
 $timeSpanEnd = "global_span_end = '" + $config.TimeSpan.End + "';"
 Set-Content -Path $data_span -Value $timeSpanStart
 Add-Content -Path $data_span -Value $timeSpanEnd
+
+$filterJson = $config.Filter | ConvertTo-Json
+$filterString = "global_filter = " + $filterJson
+Set-Content -Path $data_filter -Value $filterString -Encoding UTF8
+
+Write-Host "Saved Filter Data to $data_filter"
 
 Write-Host "Please Open index.html at browser!"

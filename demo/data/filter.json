@@ -1,0 +1,10 @@
+﻿global_filter = {
+    "robot":  {
+                  "includes":  [
+
+                               ],
+                  "excludes":  [
+
+                               ]
+              }
+}

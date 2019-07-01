@@ -5,6 +5,12 @@
         "username": "",
         "password": ""
     },
+    "Filter": {
+        "robot": {
+            "includes": [],
+            "excludes": []
+        }
+    },
     "TimeSpan": {
         "Start": "2019-06-11 00:00:00",
         "End": "2019-06-18 23:59:59"
