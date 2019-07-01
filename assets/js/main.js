@@ -63,6 +63,9 @@ $(document).ready(function(){
                 value.StartTime = value.CreationTime;
                 value.EndTime = span_end;
             }
+            if(value.EndTime == undefined && "Running" == value.State){
+                value.EndTime = value.StartTime
+            }
             var condition_time = verify_date(new Date(value.StartTime), span_start, span_end) || verify_date(new Date(value.EndTime), span_start, span_end);
             return condition_type && condition_time;
         });
