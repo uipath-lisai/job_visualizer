@@ -29,6 +29,7 @@ $(document).ready(function(){
             editable: false,   // default for all items
             horizontalScroll: false,
             orientation: 'both',
+            clickToUse: true,
             zoomKey: 'altKey',
             zoomMin: 1000 * 60 * 60 * 24,             // one day 
             zoomMax: 1000 * 60 * 60 * 24 * 31 * 2,    // two months
