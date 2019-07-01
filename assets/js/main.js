@@ -1,5 +1,6 @@
 $(document).ready(function(){
     var main = function(){
+        $("#time-span").append("Time Span : " + global_span_start + " ~ " + global_span_end);
         viewer(global_span_start, global_span_end);
     }
     
@@ -28,6 +29,7 @@ $(document).ready(function(){
             editable: false,   // default for all items
             horizontalScroll: false,
             orientation: 'both',
+            zoomKey: 'altKey',
             zoomMin: 1000 * 60 * 60 * 24,             // one day 
             zoomMax: 1000 * 60 * 60 * 24 * 31 * 2,    // two months
             tooltip: {overflowMethod: 'cap'}
@@ -129,7 +131,7 @@ $(document).ready(function(){
                 env_schedule.schedules.push({
                     schedule_cron: value.StartProcessCron,
                     schedule_name: value.Name,
-                    is_schedule_minutely: JSON.parse(value.StartProcessCronDetails).type == 0,
+                    is_schedule_minutely: scheduler_type_minutely(value),
                     schedule_summary: value.StartProcessCronSummary,
                     environment_name: value.EnvironmentName,
                     package: value.PackageName,
@@ -142,7 +144,7 @@ $(document).ready(function(){
                     schedules:[{
                         schedule_cron: value.StartProcessCron,
                         schedule_name: value.Name,
-                        is_schedule_minutely: JSON.parse(value.StartProcessCronDetails).type == 0,
+                        is_schedule_minutely: scheduler_type_minutely(value),
                         schedule_summary: value.StartProcessCronSummary,
                         environment_name: value.EnvironmentName,
                         package: value.PackageName,
@@ -292,7 +294,6 @@ $(document).ready(function(){
     
     var span_total_time = function(start, end){
         var diff = Math.abs(new Date(start) - new Date(end));
-        //return Math.ceil(diff/1000);
         return moment.duration(diff).humanize();
     };
     
@@ -310,6 +311,16 @@ $(document).ready(function(){
         if(job.State !== "Pending"){
             group.used_minutes = group.used_minutes + span_total_minutes(job.StartTime, job.EndTime);
         }
+    };
+    
+    var scheduler_type_minutely = function(scheduler){
+        var scheduler_type = JSON.parse(scheduler.StartProcessCronDetails).type;
+        if(scheduler_type == 5){
+            if(scheduler.StartProcessCronSummary.toLowerCase().includes("every 1 hours")){
+                return true;
+            }
+        }
+        return  scheduler_type == 0 || scheduler_type == 1;
     };
     
     var render_group_content = function(groups){
