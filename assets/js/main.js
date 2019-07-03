@@ -278,7 +278,7 @@ $(document).ready(function(){
         if(filter.robot.includes.length > 0){
             include_condition = include_hit.length > 0;
         }
-        return robot.RobotEnvironments !== "" && exclude_hit.length == 0 && include_condition;
+        return robot.RobotEnvironments !== "" && robot.Type == "Unattended" && exclude_hit.length == 0 && include_condition;
     };
     
     var group_class = function(robot){
