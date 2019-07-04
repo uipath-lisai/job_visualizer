@@ -27,6 +27,7 @@ $(document).ready(function(){
 
         var options = {
             editable: false,   // default for all items
+            selectable: true,
             horizontalScroll: false,
             orientation: 'both',
             clickToUse: true,
@@ -35,7 +36,8 @@ $(document).ready(function(){
             zoomMax: 1000 * 60 * 60 * 24 * 31 * 2,    // two months
             tooltip: {overflowMethod: 'cap'}
         };
-        new vis.Timeline(container, vis_items, vis_groups, options);
+        var timeline = new vis.Timeline(container, vis_items, vis_groups, options);
+        timeline_handler(timeline);
     };
     
     var robot_entry = function(params, span_start, span_end){
@@ -266,6 +268,15 @@ $(document).ready(function(){
     /*********************
     *  Utility method zone
     *********************/
+    var timeline_handler = function(timeline){
+        timeline.on('doubleClick', function(props){
+            var selectedItem = props.event.target.innerText;
+            if(selectedItem != undefined){
+                $("#selected-item").html("<span>"+selectedItem+"</span>");
+            }
+        });
+    };
+    
     var robot_filter = function(robot){
         var filter = filter_raw_data();
         var exclude_hit = filter.robot.excludes.filter(function(exc){
