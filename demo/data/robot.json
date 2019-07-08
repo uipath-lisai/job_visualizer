@@ -55,7 +55,7 @@
         "Username": "administrator",
         "Description": null,
         "Version": "18.2.6.0",
-        "Type": "Unattended",
+        "Type": "Attended",
         "HostingType": "Standard",
         "Password": null,
         "CredentialType": null,

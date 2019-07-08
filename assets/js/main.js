@@ -5,8 +5,7 @@ $(document).ready(function(){
     }
     
       var viewer = function(span_start, span_end){
-        // Should define local var.
-        in_out = {
+        var in_out = {
             index: 0,
             groups: [],
             items: []
@@ -29,6 +28,7 @@ $(document).ready(function(){
             editable: false,   // default for all items
             selectable: true,
             horizontalScroll: false,
+            verticalScroll: true,
             orientation: 'both',
             clickToUse: true,
             zoomKey: 'altKey',
@@ -38,6 +38,7 @@ $(document).ready(function(){
         };
         var timeline = new vis.Timeline(container, vis_items, vis_groups, options);
         timeline_handler(timeline);
+        robot_handler(timeline, in_out.groups);
     };
     
     var robot_entry = function(params, span_start, span_end){
@@ -53,6 +54,8 @@ $(document).ready(function(){
                 machine_name: robot.MachineName,
                 environments: robot.RobotEnvironments.split(","),
                 robot_name: robot.Name,
+                type: robot.Type,
+                visible: true,
                 className: group_class(robot),
                 total_minutes: total_minutes,
                 used_minutes: 0
@@ -277,6 +280,42 @@ $(document).ready(function(){
         });
     };
     
+    var robot_handler = function(timeline, robots){
+        $("#type_ok").click(function(){
+            var types = {
+                ur : $("#ur").is(":checked"),
+                ar : $("#ar").is(":checked"),
+                others : $("#others").is(":checked")
+            }
+            robot_type_filter(robots, types);
+            timeline.setGroups(robots);
+        });
+    };
+    
+    var robot_type_filter = function(robots, types){
+        robots.forEach(function(robot){
+            if(robot.type == "Unattended"){
+                if(types.ur){
+                    robot.visible = true;
+                }else{
+                    robot.visible = false;
+                }
+            }else if(robot.type == "Attended"){
+                if(types.ar){
+                    robot.visible = true;
+                }else{
+                    robot.visible = false;
+                }
+            }else{
+                if(types.others){
+                    robot.visible = true;
+                }else{
+                    robot.visible = false;
+                }
+            }
+        });
+    }
+    
     var robot_filter = function(robot){
         var filter = filter_raw_data();
         var exclude_hit = filter.robot.excludes.filter(function(exc){
@@ -289,8 +328,8 @@ $(document).ready(function(){
         if(filter.robot.includes.length > 0){
             include_condition = include_hit.length > 0;
         }
-        return robot.RobotEnvironments !== "" && robot.Type == "Unattended" && exclude_hit.length == 0 && include_condition;
-    };
+        return robot.RobotEnvironments !== "" && exclude_hit.length == 0 && include_condition;
+    };    
     
     var group_class = function(robot){
         if(is_robot_alive(robot)){
@@ -298,11 +337,11 @@ $(document).ready(function(){
         }else{
             return "group_item_warn";
         }
-    }
+    };
     
     var is_robot_alive = function(robot){
         return robot.MachineName != undefined && robot.RobotEnvironments != "";
-    }
+    };
     
     var span_total_time = function(start, end){
         var diff = Math.abs(new Date(start) - new Date(end));
@@ -340,11 +379,11 @@ $(document).ready(function(){
             var progress = Math.ceil(group.used_minutes * 100 / group.total_minutes);
             group.content = `<label>${group.robot_name}</label><br><progress max="100" value="${progress}"> ${progress}% </progress>`;
             
-            group.title = `RobotName: ${group.robot_name}, \r\nMachineName: ${group.machine_name}, \r\nEnvironment ${group.environments}, \r\nUsage: ${progress}%`;
+            group.title = `RobotName: ${group.robot_name}, \r\nMachineName: ${group.machine_name}, \r\nEnvironment ${group.environments}, \r\nType: ${group.type}, \r\nUsage: ${progress}%`;
             
             group.order = -group.used_minutes;
         });
-    }
+    };
     
     var job_class = function(state){
         if("Successful" === state){
@@ -372,7 +411,7 @@ $(document).ready(function(){
         var end_date_month = end_data.getMonth();
         
         return date >= new Date(start_date_year, start_date_month) && date <= new Date(end_date_year, end_date_month);
-    }
+    };
     
     var convert_number = function(dayofweek){
         var map = {
