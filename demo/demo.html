@@ -9,14 +9,15 @@
     <div id="operation" style="margin-bottom: 10px">
         <div style="margin-bottom: 5px">Click scheduler to activate, and press Alt + Mouse Scroll to Zoom. Press ESC to deactivate.</div>
         <div style="margin-bottom: 5px"><span>Double click scheduler item to select. Selected: </span><span id="selected-item" style="background-color: yellow"></span></div>
-        <div id="time-span" style="margin-bottom: 5px"></div>
+        <div style="margin-bottom: 5px"><span>Time Span:</span><span id="time-span" style="margin-left: 5px; color:cornflowerblue"></span></div>
         <div>
-            <div>Please choose robot type:</div>
+            <span style="margin-right: 5px">Please choose robot type:</span>
             <span><input type="checkbox" id="ur" name="ur" value="Unattended" checked>Unattended Robot</span>
             <span><input type="checkbox" id="ar" name="ar" value="Attended" checked>Attended Robot</span>
             <span><input type="checkbox" id="others" name="others" value="others" checked>Others</span>
-            <span><button id="type_ok" type="button">OK</button></span>
-        </div>        
+            <span style="margin-left: 5px"><button id="type_ok" type="button">OK</button></span>
+            <span style="margin-left: 15px">Count:</span><span id="robot_count" style="margin-left: 5px; color: cornflowerblue"></span>
+        </div>
     </div>
     <div id="visualization"></div>
     <div id="explain" style="margin-top: 30px">

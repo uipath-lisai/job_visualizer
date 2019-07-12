@@ -1,6 +1,6 @@
 $(document).ready(function(){
     var main = function(){
-        $("#time-span").append("Time Span : " + global_span_start + " ~ " + global_span_end);
+        $("#time-span").append(global_span_start + " ~ " + global_span_end);
         viewer(global_span_start, global_span_end);
     }
     
@@ -289,7 +289,9 @@ $(document).ready(function(){
             }
             robot_type_filter(robots, types);
             timeline.setGroups(robots);
+            count_visible(robots);
         });
+        count_visible(robots);
     };
     
     var robot_type_filter = function(robots, types){
@@ -314,7 +316,14 @@ $(document).ready(function(){
                 }
             }
         });
-    }
+    };
+    
+    var count_visible = function(robots){
+        var visible_robot = robots.filter(function(robot){
+            return robot.visible == true;
+        });
+        $("#robot_count").html("<span>" + visible_robot.length + "</span>");
+    };
     
     var robot_filter = function(robot){
         var filter = filter_raw_data();
