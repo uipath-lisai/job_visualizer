@@ -4,11 +4,14 @@ $(document).ready(function(){
         viewer(global_span_start, global_span_end);
     }
     
-      var viewer = function(span_start, span_end){
+    var viewer = function(span_start, span_end){
         var in_out = {
             index: 0,
             groups: [],
-            items: []
+            items: [],
+            visible_groups: [],
+            page_size: 10,
+            page_num: 1
         };
         
         robot_entry(in_out, span_start, span_end);
@@ -18,19 +21,26 @@ $(document).ready(function(){
         job_entry(in_out, span_start, span_end);
         
         render_group_content(in_out.groups);
+          
+        in_out.groups = sort_robots(in_out.groups);
+        
+        in_out.visible_groups = in_out.groups;
 
         
-        var vis_groups = new vis.DataSet(in_out.groups);
+        var paged_groups = robot_paging(in_out);
+        var vis_groups = new vis.DataSet(paged_groups);
         var vis_items = new vis.DataSet(in_out.items);
         var container = document.getElementById('visualization');
 
         var options = {
             editable: false,   // default for all items
             selectable: true,
+            stack: false,
             horizontalScroll: false,
             verticalScroll: true,
             orientation: 'both',
             clickToUse: true,
+            autoResize: true,
             zoomKey: 'altKey',
             zoomMin: 1000 * 60 * 60 * 24,             // one day 
             zoomMax: 1000 * 60 * 60 * 24 * 31 * 2,    // two months
@@ -38,7 +48,7 @@ $(document).ready(function(){
         };
         var timeline = new vis.Timeline(container, vis_items, vis_groups, options);
         timeline_handler(timeline);
-        robot_handler(timeline, in_out.groups);
+        robot_handler(timeline, in_out);
     };
     
     var robot_entry = function(params, span_start, span_end){
@@ -280,18 +290,60 @@ $(document).ready(function(){
         });
     };
     
-    var robot_handler = function(timeline, robots){
+    var robot_handler = function(timeline, in_out){
+        count_visible(in_out.visible_groups);
         $("#type_ok").click(function(){
-            var types = {
-                ur : $("#ur").is(":checked"),
-                ar : $("#ar").is(":checked"),
-                others : $("#others").is(":checked")
-            }
-            robot_type_filter(robots, types);
-            timeline.setGroups(robots);
-            count_visible(robots);
+            $(".current_page").text('1');
+            in_out.page_num = 1;
+            in_out.visible_groups = get_visible_robots(in_out.groups);
+            var paged_groups = robot_paging(in_out);
+            
+            timeline.setGroups(paged_groups);
+            timeline.redraw();
+            count_visible(in_out.visible_groups);
         });
-        count_visible(robots);
+        $(".page_size").on("change", function(){
+            $(".page_size").val(this.value.toString()); // sync page_size
+            $(".current_page").text('1'); // initial page num
+            in_out.page_size = this.value.toString();
+            in_out.page_num = 1;
+            var paged_groups = robot_paging(in_out);
+            timeline.setGroups(paged_groups);
+            timeline.redraw();
+        });
+        $(".page_left").on("click", function(){
+            if(in_out.page_num <= 1){
+                return;
+            }
+            in_out.page_num = in_out.page_num -1;
+            $(".current_page").text(in_out.page_num.toString());
+            timeline.setGroups(robot_paging(in_out));
+            timeline.redraw();
+        });
+        $(".page_right").on("click", function(){
+            if(in_out.visible_groups.length % in_out.page_size == 0){
+                if(in_out.page_num == in_out.visible_groups.length/in_out.page_size){
+                    return;
+                }
+            }else{
+                if(in_out.page_num > in_out.visible_groups.length/in_out.page_size){
+                    return;
+                }
+            }
+            in_out.page_num = in_out.page_num + 1;
+            $(".current_page").text(in_out.page_num.toString());
+            timeline.setGroups(robot_paging(in_out));
+            timeline.redraw();
+        });
+    };
+    
+    var get_visible_robots = function(robots){
+        var types = {
+            ur : $("#ur").is(":checked"),
+            ar : $("#ar").is(":checked"),
+            others : $("#others").is(":checked")
+        }
+        return robot_type_filter(robots, types);
     };
     
     var robot_type_filter = function(robots, types){
@@ -316,13 +368,40 @@ $(document).ready(function(){
                 }
             }
         });
+        return robots.filter(function(robot){
+                   return robot.visible == true;
+               });
     };
     
-    var count_visible = function(robots){
-        var visible_robot = robots.filter(function(robot){
-            return robot.visible == true;
+    
+    var robot_paging = function(in_out){
+        var page_start_index = (in_out.page_num - 1) * in_out.page_size;
+        var page_end_index = in_out.page_num * in_out.page_size;
+        return in_out.visible_groups.slice(page_start_index, page_end_index);
+    }
+    
+    var sort_robots = function(robots){
+        return robots.sort(function(foo, bar){
+           return bar.used_minutes - foo.used_minutes;
         });
+    }
+        
+    var count_visible = function(visible_robot){
         $("#robot_count").html("<span>" + visible_robot.length + "</span>");
+    };
+    
+    var get_page_info = function(){
+        var page_size = $(".page_size").first().children("option:selected").val();
+        var cur_page = $(".current_page").first().text();
+        return {
+            page_size: parseInt(page_size),
+            page_num: parseInt(cur_page)
+        };
+    };
+    
+    var set_page_info = function(page_size, page_num){
+        $(".page_size").val(page_size.toString());
+        $(".current_page").text(page_num.toString());
     };
     
     var robot_filter = function(robot){
@@ -338,7 +417,8 @@ $(document).ready(function(){
             include_condition = include_hit.length > 0;
         }
         return robot.RobotEnvironments !== "" && exclude_hit.length == 0 && include_condition;
-    };    
+    };
+    
     
     var group_class = function(robot){
         if(is_robot_alive(robot)){

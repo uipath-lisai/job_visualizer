@@ -16,11 +16,36 @@
             <span><input type="checkbox" id="ar" name="ar" value="Attended" checked>Attended Robot</span>
             <span><input type="checkbox" id="others" name="others" value="others" checked>Others</span>
             <span style="margin-left: 5px"><button id="type_ok" type="button">OK</button></span>
-            <span style="margin-left: 15px">Count:</span><span id="robot_count" style="margin-left: 5px; color: cornflowerblue"></span>
+            <span style="margin-left: 15px">Total:</span>
+            <span id="robot_count" style="margin-left: 5px; color: cornflowerblue"></span>
+            <span style="float: right; margin-right: 30px">
+                <span>Page Size:</span>
+                <select class="page_size">
+                  <option value="10" selected>10</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                </select>
+                <button class="page_left" type="button">prev</button>
+                <span class="current_page" style="margin-left:5px; margin-right:5px; color:blue; text-decoration:underline">1</span>
+                <button class="page_right" type="button">next</button>
+            </span>
         </div>
     </div>
     <div id="visualization"></div>
     <div id="explain" style="margin-top: 30px">
+        <span style="float: right; margin-right: 30px">
+            <span>Page Size:</span>
+            <select class="page_size">
+              <option value="10" selected>10</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+            </select>
+            <button class="page_left" type="button">prev</button>
+            <span class="current_page" style="margin-left:5px; margin-right:5px; color:blue; text-decoration:underline">1</span>
+            <button class="page_right" type="button">next</button>
+        </span>
         <div class="vis-item vis-point schedule_item vis-readonly" style="">
             <div class="vis-item vis-dot schedule_item vis-readonly" style="margin-top: 3px"></div>
         </div>
