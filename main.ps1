@@ -49,10 +49,10 @@ Set-Content -Path $data_robot -Value $robotString -Encoding UTF8
 Write-Host "Saved Robot Data to $data_robot"
 
 # Get Scheduler data
-$scheduleUri = $config.Orchestrator.url + "/odata/ProcessSchedules"
+$scheduleUri = $config.Orchestrator.url + "/odata/ProcessSchedules" + '?$expand=ExecutorRobots'
 $resSchedule = Invoke-RestMethod -Uri $scheduleUri -Method Get -ContentType $contentType -Headers $headers
 
-$scheduleJson = $resSchedule.value | ConvertTo-Json
+$scheduleJson = $resSchedule.value | ConvertTo-Json -Depth 3
 $scheduleString = "global_schedule_list = " +  $scheduleJson
 
 Set-Content -Path $data_schedule -Value $scheduleString -Encoding UTF8

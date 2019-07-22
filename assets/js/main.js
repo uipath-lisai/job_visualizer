@@ -14,11 +14,17 @@ $(document).ready(function(){
             page_num: 1
         };
         
+        console.time('robot_entry');
         robot_entry(in_out, span_start, span_end);
+        console.timeEnd('robot_entry');
         
+        console.time('schedule_entry');
         schedule_entry(in_out, span_start, span_end);
+        console.timeEnd('schedule_entry');
 
+        console.time('job_entry');
         job_entry(in_out, span_start, span_end);
+        console.timeEnd('job_entry');
         
         render_group_content(in_out.groups);
           
@@ -46,9 +52,12 @@ $(document).ready(function(){
             zoomMax: 1000 * 60 * 60 * 24 * 31 * 2,    // two months
             tooltip: {overflowMethod: 'cap'}
         };
+        
+        console.time('render');
         var timeline = new vis.Timeline(container, vis_items, vis_groups, options);
         timeline_handler(timeline);
         robot_handler(timeline, in_out);
+        console.timeEnd('render');
     };
     
     var robot_entry = function(params, span_start, span_end){
@@ -121,7 +130,7 @@ $(document).ready(function(){
             jobs_arr.forEach(function(job){
                 params.items.push({
                     content: job.ReleaseName,
-                    title: "Name: " + job.ReleaseName + ",<br>Span: " + span_total_time(job.StartTime, job.EndTime) +"<br>Status: " + job.State,
+                    title: "Name: " + job.ReleaseName + ",<br>Source: " + job.Source + ",<br>Span: " + span_total_time(job.StartTime, job.EndTime) +",<br>Status: " + job.State,
                     type: 'range',
                     start: job.StartTime,
                     end: job.EndTime,
@@ -151,7 +160,8 @@ $(document).ready(function(){
                     schedule_summary: value.StartProcessCronSummary,
                     environment_name: value.EnvironmentName,
                     package: value.PackageName,
-                    release_name: value.ReleaseName
+                    release_name: value.ReleaseName,
+                    executor_robot: value.ExecutorRobots
                 });
             }else{
                 env_schedules[value.EnvironmentName] = {
@@ -164,7 +174,8 @@ $(document).ready(function(){
                         schedule_summary: value.StartProcessCronSummary,
                         environment_name: value.EnvironmentName,
                         package: value.PackageName,
-                        release_name: value.ReleaseName
+                        release_name: value.ReleaseName,
+                        executor_robot: value.ExecutorRobots
                     }]
                 };
             }
@@ -174,14 +185,20 @@ $(document).ready(function(){
             var schedule_obj = env_schedules[env_name];
 
             // Find group id for environment
-            var group_ids = params.groups.filter(function(group){
+            var groups = params.groups.filter(function(group){
                 return group.environments.includes(env_name);
-            }).map(function(group){
-                return group.id;
             });
             
-            group_ids.forEach(function(id){
-                schedule_obj.schedules.forEach(function(cron){
+            groups.forEach(function(group){
+                schedule_obj.schedules.filter(function(schedule){
+                    if(schedule.executor_robot.length > 0){
+                        return schedule.executor_robot.filter(function(robot){
+                            return robot.Name === group.robot_name;
+                        }).length > 0;
+                    }else{
+                        return true; // scheduler will be added to all environment robots.
+                    }
+                }).forEach(function(cron){
                     if(cron.is_schedule_minutely){
                         params.items.push({
                            content: "", 
@@ -190,7 +207,7 @@ $(document).ready(function(){
                            start: span_start,
                            end: span_end,
                            className: 'schedule_item',
-                           group: id
+                           group: group.id
                         });
                     }else{
                         var start_times = schedule_start_time(cron.schedule_cron, span_start, span_end);
@@ -201,7 +218,7 @@ $(document).ready(function(){
                                type: 'point', 
                                start: starts,
                                className: 'schedule_item',
-                               group: id
+                               group: group.id
                             });
                         });    
                     }
