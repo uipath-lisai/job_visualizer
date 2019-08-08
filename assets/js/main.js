@@ -511,7 +511,7 @@ $(document).ready(function(){
     };
     
     var convert_utc_tokyo = function(reporttime){
-        var tokyoTime = new Date("2019-05-17T12:25:36.533Z").toLocaleString("en-US", {timeZone: "Asia/Tokyo"});
+        var tokyoTime = new Date(reporttime).toLocaleString("en-US", {timeZone: "Asia/Tokyo"});
         tokyoTime = new Date(tokyoTime);
         return tokyoTime.toLocaleString();
     };
