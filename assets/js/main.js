@@ -63,19 +63,21 @@ $(document).ready(function(){
     var robot_entry = function(params, span_start, span_end){
         var total_minutes = span_total_minutes(span_start, span_end);
         
-        // TBD: add more filter here.
+        // TBD: add filter here.
         robot_raw_data().filter(function(value){
             return robot_filter(value);
         }).forEach(function(robot){
             params.index++;
+            var robot_status = robot_states(robot);
             params.groups.push({
                 id: params.index,
                 machine_name: robot.MachineName,
                 environments: robot.RobotEnvironments.split(","),
                 robot_name: robot.Name,
                 type: robot.Type,
+                status: robot_status,
                 visible: true,
-                className: group_class(robot),
+                className: group_class(robot, robot_status),
                 total_minutes: total_minutes,
                 used_minutes: 0
             });
@@ -85,7 +87,7 @@ $(document).ready(function(){
     var job_entry = function(params, span_start, span_end){
         var job_data = jobs_raw_data().filter(function(value){
             // TBD: add more filters here, like "schedule, manual, agent"
-            var condition_type = value.SourceType !== ""; 
+            var condition_type = value.SourceType !== "";
             if("Pending" === value.State){
                 value.StartTime = value.CreationTime;
                 value.EndTime = span_end;
@@ -437,15 +439,15 @@ $(document).ready(function(){
     };
     
     
-    var group_class = function(robot){
-        if(is_robot_alive(robot)){
+    var group_class = function(robot, status){
+        if(is_machine_exists(robot) && status.responsive){
             return "group_item_normal";
         }else{
             return "group_item_warn";
         }
     };
     
-    var is_robot_alive = function(robot){
+    var is_machine_exists = function(robot){
         return robot.MachineName != undefined && robot.RobotEnvironments != "";
     };
     
@@ -480,12 +482,50 @@ $(document).ready(function(){
         return  scheduler_type == 0 || scheduler_type == 1;
     };
     
+    var robot_states = function(robot){
+        var unresponsive_list = ur_session_raw_data();
+        var res_list = unresponsive_list.filter(function(unresponsive){
+           return unresponsive.Robot.Name === robot.Name; 
+        });
+        if(res_list.length == 0){
+            return {
+                responsive: true,
+                state: 'avaliable',
+                last_update: 'now',
+            }
+        }else{
+            return {
+                responsive: false,
+                state: get_state(res_list[0]),
+                last_update: convert_utc_tokyo(res_list[0].ReportingTime)
+            }
+        }
+    };
+    
+    var get_state = function(session){
+        if(session.IsUnresponsive){
+            return "Unresponsive";
+        }else{
+            return session.State;
+        }
+    };
+    
+    var convert_utc_tokyo = function(reporttime){
+        var tokyoTime = new Date("2019-05-17T12:25:36.533Z").toLocaleString("en-US", {timeZone: "Asia/Tokyo"});
+        tokyoTime = new Date(tokyoTime);
+        return tokyoTime.toLocaleString();
+    };
+    
     var render_group_content = function(groups){
         groups.forEach(function(group){
             var progress = Math.ceil(group.used_minutes * 100 / group.total_minutes);
             group.content = `<label>${group.robot_name}</label><br><progress max="100" value="${progress}"> ${progress}% </progress>`;
             
-            group.title = `RobotName: ${group.robot_name}, \r\nMachineName: ${group.machine_name}, \r\nEnvironment ${group.environments}, \r\nType: ${group.type}, \r\nUsage: ${progress}%`;
+            if(group.status.responsive){
+                group.title = `RobotName: ${group.robot_name}, \r\nMachineName: ${group.machine_name}, \r\nEnvironment ${group.environments}, \r\nType: ${group.type}, \r\nUsage: ${progress}%`;
+            }else{
+                group.title = `RobotName: ${group.robot_name}, \r\nMachineName: ${group.machine_name}, \r\nEnvironment ${group.environments}, \r\nType: ${group.type}, \r\nState: ${group.status.state} @ ${group.status.last_update} \r\nUsage: ${progress}%`;
+            }
             
             group.order = -group.used_minutes;
         });
@@ -631,6 +671,10 @@ $(document).ready(function(){
     
     var robot_raw_data = function(){
         return global_robot_list;
+    };
+    
+    var ur_session_raw_data = function(){
+        return global_session_list;
     };
     
     var filter_raw_data = function(){

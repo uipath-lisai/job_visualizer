@@ -3,6 +3,7 @@ $global:data_schedule = "data\schedule.json"
 $global:data_job = "data\job.json"
 $global:data_span = "data\span.json"
 $global:data_filter = "data\filter.json"
+$global:data_session = "data\session.json"
 $global:config_file = "config.json"
 
 if(!(test-path "data")){
@@ -72,6 +73,18 @@ $jobString = "global_job_list = " + $jobJson
 Set-Content -Path $data_job -Value $jobString -Encoding UTF8
 
 Write-Host "Saved Job Data to $data_job"
+
+# unresponsive and disconnected robot
+$sessionFilter = "(((Robot%2FType%20eq%20'2')%20and%20(State%20ne%20'2')%20and%20(IsUnresponsive%20eq%20true))%20or%20((State%20eq%20'2')%20and%20(Robot%2FType%20eq%20'2')))"
+$sessionUri = $config.Orchestrator.url + "/odata/Sessions" + '?$expand=Robot&$filter=' + $sessionFilter
+$resSession = Invoke-RestMethod -Uri $sessionUri -Method Get -ContentType $contentType -Headers $headers
+
+$sessionJson = $resSession.value | ConvertTo-Json
+$sessionString = "global_session_list = " + $sessionJson
+
+Set-Content -Path $data_session -Value $sessionString -Encoding UTF8
+
+Write-Host "Saved Session Data to $data_session"
 
 $timeSpanStart = "global_span_start = '" + $config.TimeSpan.Start + "';"
 $timeSpanEnd = "global_span_end = '" + $config.TimeSpan.End + "';"
