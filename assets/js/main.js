@@ -11,7 +11,8 @@ $(document).ready(function(){
             items: [],
             visible_groups: [],
             page_size: 10,
-            page_num: 1
+            page_num: 1,
+            timezone: "Asia/Tokyo"
         };
         
         console.time('robot_entry');
@@ -68,7 +69,7 @@ $(document).ready(function(){
             return robot_filter(value);
         }).forEach(function(robot){
             params.index++;
-            var robot_status = robot_states(robot);
+            var robot_status = robot_states(robot, params.timezone);
             params.groups.push({
                 id: params.index,
                 machine_name: robot.MachineName,
@@ -482,7 +483,7 @@ $(document).ready(function(){
         return  scheduler_type == 0 || scheduler_type == 1;
     };
     
-    var robot_states = function(robot){
+    var robot_states = function(robot, localtz){
         var unresponsive_list = ur_session_raw_data();
         var res_list = unresponsive_list.filter(function(unresponsive){
            return unresponsive.Robot.Name === robot.Name; 
@@ -497,7 +498,7 @@ $(document).ready(function(){
             return {
                 responsive: false,
                 state: get_state(res_list[0]),
-                last_update: convert_utc_tokyo(res_list[0].ReportingTime)
+                last_update: convert_utc_tokyo(res_list[0].ReportingTime, localtz)
             }
         }
     };
@@ -510,8 +511,8 @@ $(document).ready(function(){
         }
     };
     
-    var convert_utc_tokyo = function(reporttime){
-        var tokyoTime = new Date(reporttime).toLocaleString("en-US", {timeZone: "Asia/Tokyo"});
+    var convert_utc_tokyo = function(reporttime, localtz){
+        var tokyoTime = new Date(reporttime).toLocaleString("en-US", {timeZone: localtz});
         tokyoTime = new Date(tokyoTime);
         return tokyoTime.toLocaleString();
     };
