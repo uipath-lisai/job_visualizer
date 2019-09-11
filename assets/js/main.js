@@ -11,8 +11,7 @@ $(document).ready(function(){
             items: [],
             visible_groups: [],
             page_size: 10,
-            page_num: 1,
-            timezone: "Asia/Tokyo"
+            page_num: 1
         };
         
         console.time('robot_entry');
@@ -69,7 +68,7 @@ $(document).ready(function(){
             return robot_filter(value);
         }).forEach(function(robot){
             params.index++;
-            var robot_status = robot_states(robot, params.timezone);
+            var robot_status = robot_states(robot);
             params.groups.push({
                 id: params.index,
                 machine_name: robot.MachineName,
@@ -133,7 +132,7 @@ $(document).ready(function(){
             jobs_arr.forEach(function(job){
                 params.items.push({
                     content: job.ReleaseName,
-                    title: "Name: " + job.ReleaseName + ",<br>Source: " + job.Source + ",<br>Span: " + span_total_time(job.StartTime, job.EndTime) +",<br>Status: " + job.State,
+                    title: "Name: " + job.ReleaseName + ",<br>Source: " + job.Source + ",<br>Span: " + span_total_time(job.StartTime, job.EndTime) + ", " + get_time(job.StartTime) + " ~ " + get_time(job.EndTime) + ",<br>Status: " + job.State,
                     type: 'range',
                     start: job.StartTime,
                     end: job.EndTime,
@@ -457,6 +456,10 @@ $(document).ready(function(){
         return moment.duration(diff).humanize();
     };
     
+    var get_time = function(date){
+        return moment(date).format("HH:mm:ss");
+    }
+    
     
     var span_total_minutes = function(start, end){
         var diff = Math.abs(new Date(start) - new Date(end));
@@ -483,7 +486,7 @@ $(document).ready(function(){
         return  scheduler_type == 0 || scheduler_type == 1;
     };
     
-    var robot_states = function(robot, localtz){
+    var robot_states = function(robot){
         var unresponsive_list = ur_session_raw_data();
         var res_list = unresponsive_list.filter(function(unresponsive){
            return unresponsive.Robot.Name === robot.Name; 
@@ -498,7 +501,7 @@ $(document).ready(function(){
             return {
                 responsive: false,
                 state: get_state(res_list[0]),
-                last_update: convert_utc_tokyo(res_list[0].ReportingTime, localtz)
+                last_update: convert_utc_localtz(res_list[0].ReportingTime)
             }
         }
     };
@@ -511,10 +514,8 @@ $(document).ready(function(){
         }
     };
     
-    var convert_utc_tokyo = function(reporttime, localtz){
-        var tokyoTime = new Date(reporttime).toLocaleString("en-US", {timeZone: localtz});
-        tokyoTime = new Date(tokyoTime);
-        return tokyoTime.toLocaleString();
+    var convert_utc_localtz = function(reporttime){
+        return moment(reporttime).format("YYYY/MM/DD HH:mm:ss");
     };
     
     var render_group_content = function(groups){
