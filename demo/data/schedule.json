@@ -21,7 +21,15 @@
         "UseCalendar": false,
         "StopProcessDate": null,
         "InputArguments": null,
-        "Id": 2
+        "Id": 2,
+        "ExecutorRobots":  [
+            {
+                "MachineName":  "EC2AMAZ-USJB5Q8",
+                "Name":  "robot-D",
+                "Description":  null,
+                "Id":  117
+            }
+        ]
       },
       {
         "Enabled": true,
@@ -45,7 +53,27 @@
         "UseCalendar": false,
         "StopProcessDate": null,
         "InputArguments": null,
-        "Id": 15
+        "Id": 15,
+        "ExecutorRobots":  [
+            {
+                "MachineName":  "EC2AMAZ-AIO7BTU",
+                "Name":  "robot-A",
+                "Description":  null,
+                "Id":  120
+            },
+            {
+              "MachineName":  "EC2AMAZ-47UQ88B",
+              "Name":  "robot-B",
+              "Description":  null,
+              "Id":  121
+            },
+            {
+              "MachineName":  "EC2AMAZ-HTBUA20",
+              "Name":  "robot-C",
+              "Description":  null,
+              "Id":  122
+            }
+        ]
       },
       {
         "Enabled": true,
@@ -69,7 +97,27 @@
         "UseCalendar": false,
         "StopProcessDate": null,
         "InputArguments": null,
-        "Id": 16
+        "Id": 16,
+        "ExecutorRobots":  [
+            {
+              "MachineName":  "EC2AMAZ-AIO7BTU",
+              "Name":  "robot-A",
+              "Description":  null,
+              "Id":  120
+            },
+            {
+              "MachineName":  "EC2AMAZ-47UQ88B",
+              "Name":  "robot-B",
+              "Description":  null,
+              "Id":  121
+            },
+            {
+              "MachineName":  "EC2AMAZ-HTBUA20",
+              "Name":  "robot-C",
+              "Description":  null,
+              "Id":  122
+            }
+        ]
       },
       {
         "Enabled": true,
@@ -93,7 +141,27 @@
         "UseCalendar": false,
         "StopProcessDate": null,
         "InputArguments": null,
-        "Id": 17
+        "Id": 17,
+        "ExecutorRobots":  [
+            {
+              "MachineName":  "EC2AMAZ-AIO7BTU",
+              "Name":  "robot-A",
+              "Description":  null,
+              "Id":  120
+            },
+            {
+              "MachineName":  "EC2AMAZ-47UQ88B",
+              "Name":  "robot-B",
+              "Description":  null,
+              "Id":  121
+            },
+            {
+              "MachineName":  "EC2AMAZ-HTBUA20",
+              "Name":  "robot-C",
+              "Description":  null,
+              "Id":  122
+            }
+        ]
       },
       {
         "Enabled": false,
@@ -117,6 +185,26 @@
         "UseCalendar": false,
         "StopProcessDate": null,
         "InputArguments": null,
-        "Id": 18
+        "Id": 18,
+        "ExecutorRobots":  [
+            {
+              "MachineName":  "EC2AMAZ-AIO7BTU",
+              "Name":  "robot-A",
+              "Description":  null,
+              "Id":  120
+            },
+            {
+              "MachineName":  "EC2AMAZ-47UQ88B",
+              "Name":  "robot-B",
+              "Description":  null,
+              "Id":  121
+            },
+            {
+              "MachineName":  "EC2AMAZ-HTBUA20",
+              "Name":  "robot-C",
+              "Description":  null,
+              "Id":  122
+            }
+        ]
       }
 ]
