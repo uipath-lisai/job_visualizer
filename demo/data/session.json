@@ -3,10 +3,10 @@ global_session_list = [
         "HostMachineName":  "EC2AMAZ-AIO7BTU",
         "MachineId":  1,
         "MachineName":  "EC2AMAZ-AIO7BTU",
-        "State":  "Available",
-        "ReportingTime":  "2019-07-11T08:07:39.84Z",
+        "State":  "Disconnected",
+        "ReportingTime":  "2019-06-10T08:07:39.84Z",
         "Info":  null,
-        "IsUnresponsive":  false,
+        "IsUnresponsive":  true,
         "LicenseErrorCode":  null,
         "Id":  1,
         "Robot":  {
