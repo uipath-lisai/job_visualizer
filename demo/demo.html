@@ -3,6 +3,8 @@
 <head>
   <title>Job visualizer|demo</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+  <link href="../assets/css/footable/footable.standalone.min.css" rel="stylesheet" type="text/css" />
   <link href="../assets/css/main.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -10,12 +12,13 @@
         <div style="margin-bottom: 5px">Click scheduler to activate, and press Alt + Mouse Scroll to Zoom. Press ESC to deactivate.</div>
         <div style="margin-bottom: 5px"><span>Double click scheduler item to select. Selected: </span><span id="selected-item" style="background-color: yellow"></span></div>
         <div style="margin-bottom: 5px"><span>Time Span:</span><span id="time-span" style="margin-left: 5px; color:cornflowerblue"></span></div>
+        <div><p><a href="#removable_robot_modal" id="open_modal">Open Modal</a></p></div>
         <div>
-            <span style="margin-right: 5px">Please choose robot type:</span>
+            <span style="margin-right:9px">Robot Type:</span>
             <span><input type="checkbox" id="ur" name="ur" value="Unattended" checked>Unattended Robot</span>
             <span><input type="checkbox" id="ar" name="ar" value="Attended" checked>Attended Robot</span>
             <span><input type="checkbox" id="others" name="others" value="others" checked>Others</span>
-            <span style="margin-left: 5px"><button id="type_ok" type="button">OK</button></span>
+            <span style="margin-left: 30px"><button id="type_ok" type="button">OK</button></span>
             <span style="margin-left: 15px">Total:</span>
             <span id="robot_count" style="margin-left: 5px; color: cornflowerblue"></span>
             <span style="float: right; margin-right: 30px">
@@ -79,10 +82,56 @@
         </div>
         <div style="margin-left: 60px;margin-top: 12px">Pending job</div>
     </div>
+    <div id="removable_robot_modal" class="modal" style="width:1000px; height: 400px; max-width: 1000px; max-height: 400px">
+        <div style="z-index:35">
+            <div style="margin-bottom: 5px">
+                Unresponsive Limit
+            </div>
+            <span style="display:inline-block; width: 30%">
+                <input type="range" id="ur_unresponsive" min="1" max="60" value="20" class="slider">
+                <span>UR: </span>
+                <span id="ur_limit" style="margin-left: 15px">20</span>
+                <span style="margin-left: 5px">days</span>
+            </span>
+            <span style="display:inline-block; width: 30%">
+                <input type="range" id="ar_unresponsive" min="1" max="60" value="20" class="slider">
+                <span>AR: </span>
+                <span id="ar_limit" style="margin-left: 15px">20</span>
+                <span style="margin-left: 5px">days</span>
+            </span>
+            <span style="display:inline-block; width: 30%">
+                <input type="range" id="others_unresponsive" min="1" max="60" value="20" class="slider">
+                <span>Others: </span>
+                <span id="others_limit" style="margin-left: 15px">20</span>
+                <span style="margin-left: 5px">days</span>
+            </span>
+        </div>
+        <div style="z-index:30; margin-top: 10px; padding-bottom: 5px; border-bottom: 2px solid green;">
+            <span>Choose Workspaces csv file(Optional)</span>
+            <input type="file" id="ws_file" accept=".csv"/>
+            <span style="float:right">
+                <div class="onoffswitch">
+                    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="table_csv_switch" checked>
+                    <label class="onoffswitch-label" for="table_csv_switch">
+                        <span class="onoffswitch-inner"></span>
+                        <span class="onoffswitch-switch"></span>
+                    </label>
+                </div>
+            </span>
+        </div>
+        <div style="margin-top: 10px">
+            <table id="table_unresponsive_robot">
+            </table>
+            <textarea id="csv_unresponsive_robot" style="width: 934px;max-width: 934px;max-height: 300px;height: 200px;display: none"></textarea>
+        </div>
+    </div>
     
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <script type="text/javascript" src="../assets/js/Papaparser-5.0.2/papaparse.min.js"></script>
+    <script type="text/javascript" src="../assets/js/footable/footable.min.js"></script>
     <script type="text/javascript" src="data/robot.json"></script>
     <script type="text/javascript" src="data/schedule.json"></script>
     <script type="text/javascript" src="data/job.json"></script>

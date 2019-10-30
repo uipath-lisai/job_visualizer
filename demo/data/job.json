@@ -1,8 +1,8 @@
 ﻿global_job_list = [
     {
         "Key": "66b0d62e-cb16-4bb6-9887-7fc4167d99b5",
-        "StartTime": "2019-06-10T07:35:17.523Z",
-        "EndTime": "2019-06-10T09:35:20.213Z",
+        "StartTime": "2019-10-10T07:35:17.523Z",
+        "EndTime": "2019-10-10T09:35:20.213Z",
         "State": "Successful",
         "Source": "test-cron-weekly",
         "SourceType": "Schedule",
@@ -19,8 +19,8 @@
       },
       {
         "Key": "cc99c8fe-fa53-43ce-9cb8-320d9769efcb",
-        "StartTime": "2019-06-09T17:20:00.43Z",
-        "EndTime": "2019-06-09T21:20:08.32Z",
+        "StartTime": "2019-10-09T17:20:00.43Z",
+        "EndTime": "2019-10-09T21:20:08.32Z",
         "State": "Successful",
         "Source": "test-cron-weekly",
         "SourceType": "Schedule",
@@ -44,7 +44,7 @@
         "SourceType": "Schedule",
         "BatchExecutionKey": "e53b0d0a-0dbf-4b36-a946-105c1ce6fcbf",
         "Info": "Job completed",
-        "CreationTime": "2019-06-10T04:20:00.43Z",
+        "CreationTime": "2019-10-10T04:20:00.43Z",
         "StartingScheduleId": 10,
         "ReleaseName": "test-process-user03_sai-test",
         "Type": "Unattended",
@@ -55,8 +55,8 @@
       },
       {
         "Key": "cc99c8fe-fa53-43ce-9cb8-320d9769efcb",
-        "StartTime": "2019-06-10T04:20:00.43Z",
-        "EndTime": "2019-06-10T07:20:08.32Z",
+        "StartTime": "2019-10-10T04:20:00.43Z",
+        "EndTime": "2019-10-10T07:20:08.32Z",
         "State": "Faulted",
         "Source": "test-cron-weekly",
         "SourceType": "Schedule",

@@ -11,7 +11,8 @@ $(document).ready(function(){
             items: [],
             visible_groups: [],
             page_size: 10,
-            page_num: 1
+            page_num: 1,
+            unresponsive_robots: []
         };
         
         console.time('robot_entry');
@@ -57,6 +58,7 @@ $(document).ready(function(){
         var timeline = new vis.Timeline(container, vis_items, vis_groups, options);
         timeline_handler(timeline);
         robot_handler(timeline, in_out);
+        romovable_robot_handler(in_out);
         console.timeEnd('render');
     };
     
@@ -356,6 +358,313 @@ $(document).ready(function(){
         });
     };
     
+    var romovable_robot_handler = function(in_out){
+        var params = {
+            "ur": 20,
+            "ar": 20,
+            "others": 20,
+            "ws": false,
+            "ws_json": {},
+            "show_table":true,
+            "show_csv":false
+        };
+        
+        var reader = new FileReader();
+        
+        $("#open_modal").on("click", function(){
+            $("#removable_robot_modal").modal({
+                clickClose: false,
+                showClose: true});
+        });
+
+        
+        $("#removable_robot_modal").on($.modal.OPEN, function(event, modal){
+            $("#ur_unresponsive").on("input", function(){
+                $("#ur_limit").html("<span>"+this.value+"</span>");
+                params.ur = this.value;
+            });
+            $("#ar_unresponsive").on("input", function(){
+                $("#ar_limit").html("<span>"+this.value+"</span>");
+                params.ar = this.value;
+            });
+            $("#others_unresponsive").on("input", function(){
+                $("#others_limit").html("<span>"+this.value+"</span>");
+                params.others = this.value;
+            });
+            
+            $("#ur_unresponsive").on("change", function(){
+                if(params.ws){
+                    show_ws_table(in_out, params);
+                }else{
+                    show_robot_table(in_out, params);
+                }
+            });
+            $("#ar_unresponsive").on("change", function(){
+                if(params.ws){
+                    show_ws_table(in_out, params);
+                }else{
+                    show_robot_table(in_out, params);
+                }
+            });
+            $("#others_unresponsive").on("change", function(){
+                if(params.ws){
+                    show_ws_table(in_out, params);
+                }else{
+                    show_robot_table(in_out, params);
+                }
+            });
+            
+            show_robot_table(in_out, params);
+        });
+        
+        $("#ws_file").on("change", function(event){
+            if(window.FileReader){
+                reader.readAsText(event.target.files[0]);
+                reader.onload = function(event){
+                    var csv_data = Papa.parse(event.target.result,{skipEmptyLines: true});
+                    params.ws_json = get_ws_json(csv_data);
+                    params.ws = true;
+                    show_ws_table(in_out, params);
+                };
+                reader.onerror = wsError;
+            }else{
+                alert("FileReader is not supported in this broswer!")
+            }
+        });
+        
+        $("#table_csv_switch").on("change", function(event){
+            if($(this).is(':checked')){
+                params.show_table = true;
+                params.show_csv = false;
+                $("#table_unresponsive_robot").show();
+                $("#csv_unresponsive_robot").hide();
+            }else{
+                params.show_table = false;
+                params.show_csv = true;
+                $("#table_unresponsive_robot").hide();
+                $("#csv_unresponsive_robot").show();
+            }
+            if(params.ws){
+                show_ws_table(in_out, params);
+            }else{
+                show_robot_table(in_out, params);
+            }
+        });
+        
+        
+        var show_robot_table = function(in_out, params){
+            in_out.unresponsive_robots = filter_unresponsive_robot(params.ur, params.ar, params.others,in_out.visible_groups);
+            if(params.show_table){
+                $("#table_unresponsive_robot").html("");
+                $("#table_unresponsive_robot").footable({
+                    "columns": [
+                        { "name": "robot_name", "title": "Robot Name", "breakpoints": "xs" },
+                        { "name": "machine_name", "title": "Machine Name" },
+                        { "name": "environment", "title": "Environment" },
+                        { "name": "type", "title": "Type" },
+                        { "name": "last_update", "title": "Last Update", "breakpoints": "xs" },
+                        { "name": "comment", "title": "Comment", "breakpoints": "xs sm" }
+                    ],
+                    "rows": in_out.unresponsive_robots
+                });    
+            }
+            if(params.show_csv){
+                var csvdata = in_out.unresponsive_robots.map(el => ({
+                                                                     "Robot Name":el.robot_name,
+                                                                     "Machine Name":el.machine_name,
+                                                                     "Environment":el.environment,
+                                                                     "Type":el.type,
+                                                                     "Last Update":el.last_update,
+                                                                     "Comment":el.comment
+                                                                    }));
+                var csv = Papa.unparse(csvdata);
+                $("#csv_unresponsive_robot").text(csv);    
+            }
+            
+        }
+        
+        var show_ws_table = function(in_out, params){
+            in_out.unresponsive_robots = join_robot_ws(in_out.visible_groups, copy_json(params.ws_json), params.ar, params.ur);
+            in_out.unresponsive_robots = filter_unresponsive_robot(params.ur, params.ar, params.others,in_out.unresponsive_robots);
+            if(params.show_table){
+                $("#table_unresponsive_robot").html("");
+                $("#table_unresponsive_robot").footable({
+                    "columns": [
+                        { "name": "workspace_id", "title": "Workspace ID", "breakpoints": "xs"},
+                        { "name": "username", "title": "Workspace Username", "breakpoints": "sm"},
+                        { "name": "robot_name", "title": "Robot Name", "breakpoints": "sm"},
+                        { "name": "machine_name", "title": "Machine Name", "breakpoints": "sm"},
+                        { "name": "environment", "title": "Environment", "breakpoints": "sm"},
+                        { "name": "type", "title": "Type", "breakpoints": "sm"}, 
+                        { "name": "last_update", "title": "Last Update", "breakpoints": "xs"},
+                        { "name": "comment", "title": "Comment", "breakpoints": "xs"}
+                    ],
+                    "rows": in_out.unresponsive_robots
+                }); 
+            }
+            if(params.show_csv){
+                var csvdata = in_out.unresponsive_robots.map(el => ({
+                                                                     "Workspace ID":el.workspace_id,
+                                                                     "Workspace Username":el.username,
+                                                                     "Robot Name":el.robot_name,
+                                                                     "Machine Name":el.machine_name,
+                                                                     "Environment":el.environment,
+                                                                     "Type":el.type,
+                                                                     "Last Update":el.last_update,
+                                                                     "Comment":el.comment
+                                                                    }));
+                var csv = Papa.unparse(csvdata);
+                $("#csv_unresponsive_robot").text(csv);    
+            }
+        }
+    };
+    
+    var copy_json = function(src) {
+        return JSON.parse(JSON.stringify(src));
+    };
+    
+    // Rule:
+    // For UR, if it is unresponsive over limit time, or it has no job in the time span.
+    // For AR and Others, if it is unresponsive over limit time.
+    var filter_unresponsive_robot = function(ur_limit, ar_limit, others_limit, robot_list){
+        var res_arr = [];
+        robot_list.forEach(function(item){
+            // filter robot
+            if(item.type == "Unattended"){
+                var comment = [];
+                
+                //if(item.used_minutes == 0){
+                //    comment.push("No jobs");
+                //}
+                
+                if(is_unresponsive_over_limit(ur_limit, item)){
+                    comment.push("Unresponsive");
+                }
+                
+                if(comment.length > 0){
+                    res_arr.push({
+                        workspace_id: item.workspace_id,
+                        username: item.username,
+                        robot_name: item.robot_name,
+                        machine_name: item.machine_name,
+                        last_update: item.status.last_update,
+                        environment: item.environments.join(","),
+                        type: item.type,
+                        comment: comment.join(" & ")
+                    });
+                }
+            }else if(item.type == "Attended"){
+                if(is_unresponsive_over_limit(ar_limit, item)){
+                    res_arr.push({
+                        workspace_id: item.workspace_id,
+                        username: item.username,
+                        robot_name: item.robot_name,
+                        machine_name: item.machine_name,
+                        last_update: item.status.last_update,
+                        environment: item.environments.join(","),
+                        type: item.type,
+                        comment: "Unresponsive"
+                    });
+                }
+            }else if(item.type == "ALWAYS_ON" || item.type == "AUTO_STOP"){
+                res_arr.push(item);
+            }else{
+                if(is_unresponsive_over_limit(others_limit, item)){
+                    res_arr.push({
+                        workspace_id: item.workspace_id,
+                        username: item.username,
+                        robot_name: item.robot_name,
+                        machine_name: item.machine_name,
+                        last_update: item.status.last_update,
+                        environment: item.environments.join(","),
+                        type: item.type,
+                        comment: "Unresponsive"
+                    });
+                }
+            }
+        });
+        return res_arr;
+    };
+    
+    var is_unresponsive_over_limit = function(limit, robot){
+        if(robot.status.responsive){
+            return false;
+        }else{
+            var diff = moment().diff(moment(robot.status.last_update), 'days');
+            if(diff >= limit){
+                return true;
+            }else{
+                return false;
+            }
+        }
+    };
+    
+    var is_ws_over_limit = function(par){
+        if(par.ws.last_active_time == undefined || par.ws.last_active_time == ""){
+            par.comment = "No last update";
+            return true;
+        }
+        var diff = moment().diff(moment(par.ws.last_active_time), 'days');
+        if(diff >= par.limit){
+            par.comment = "Not Active"
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    // Return both unresponsive robots and workspaces, even if they have no matching machine name.
+    var join_robot_ws = function(robot_array, ws_json, ar_limit, ur_limit){
+        var result = [];
+        robot_array.forEach(function(robot){
+            if(ws_json.hasOwnProperty(robot.machine_name)){
+                // if machine name match.
+                robot.workspace_id = ws_json[robot.machine_name].workspace_id;
+                robot.username = ws_json[robot.machine_name].username;
+                delete ws_json[robot.machine_name]; // delete ws if it is matched. Easier for further processing.
+            }else{
+                robot.workspace_id = "";
+                robot.username = "";
+            }
+            result.push(robot);
+        });
+        for(var machine_name in ws_json){
+            result.push({
+                "workspace_id": ws_json[machine_name].workspace_id,
+                "username": ws_json[machine_name].username,
+                "robot_name": "",
+                "environment": "",
+                "machine_name": ws_json[machine_name].computer_name,
+                "last_update": ws_json[machine_name].last_active_time,
+                "type": ws_json[machine_name].running_mode,
+                "comment": "No robot"
+            });
+        }
+        return result;
+    }
+        
+    var get_ws_json = function(csv_data){
+        var ws_json = {};
+        csv_data.data.forEach(function(item){
+            ws_json[item[2]]= {
+                "workspace_id": item[0],
+                "directory_id": item[1],
+                "computer_name": item[2],
+                "username": item[3],
+                "bundle_id": item[4],
+                "ip": item[5],
+                "running_mode": item[6],
+                "vm_type": item[7],
+                "last_active_time": item[8]
+            };
+        });
+        return ws_json;
+    };
+    
+    var wsError = function(event){
+        alert("Failed to load file!");
+    };
+    
     var get_visible_robots = function(robots){
         var types = {
             ur : $("#ur").is(":checked"),
@@ -387,9 +696,7 @@ $(document).ready(function(){
                 }
             }
         });
-        return robots.filter(function(robot){
-                   return robot.visible == true;
-               });
+        return robots.filter(function(robot){return robot.visible == true;});
     };
     
     
