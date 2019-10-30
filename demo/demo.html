@@ -9,10 +9,10 @@
 </head>
 <body>
     <div id="operation" style="margin-bottom: 10px">
-        <div style="margin-bottom: 5px">Click scheduler to activate, and press Alt + Mouse Scroll to Zoom. Press ESC to deactivate.</div>
-        <div style="margin-bottom: 5px"><span>Double click scheduler item to select. Selected: </span><span id="selected-item" style="background-color: yellow"></span></div>
+        <div style="margin-bottom: 5px">[Click scheduler] to activate, and press [Alt + Mouse] Scroll to Zoom. Press [ESC] to deactivate.</div>
+        <div style="margin-bottom: 5px"><span>[Double click] scheduler item to select. Selected: </span><span id="selected-item" style="background-color: yellow"></span></div>
         <div style="margin-bottom: 5px"><span>Time Span:</span><span id="time-span" style="margin-left: 5px; color:cornflowerblue"></span></div>
-        <div><p><a href="#removable_robot_modal" id="open_modal">Open Modal</a></p></div>
+        <div><p><a href="#removable_robot_modal" id="open_modal">Removable Robots</a></p></div>
         <div>
             <span style="margin-right:9px">Robot Type:</span>
             <span><input type="checkbox" id="ur" name="ur" value="Unattended" checked>Unattended Robot</span>
@@ -120,9 +120,12 @@
             </span>
         </div>
         <div style="margin-top: 10px">
-            <table id="table_unresponsive_robot">
-            </table>
-            <textarea id="csv_unresponsive_robot" style="width: 934px;max-width: 934px;max-height: 300px;height: 200px;display: none"></textarea>
+            <div style="overflow: scroll; max-height: 320px">
+                <table id="table_unresponsive_robot"></table>
+            </div>
+            <div>
+                <textarea id="csv_unresponsive_robot" style="width: 934px;max-width: 934px;max-height: 320px;height: 320px;display: none"></textarea>
+            </div>
         </div>
     </div>
     
