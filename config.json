@@ -1,9 +1,9 @@
 {
     "Orchestrator":  {
-        "url": "https://rpa.fastretailing.com",
-        "tenant": "default",
-        "username": "admin",
-        "password": "890iop"
+        "url": "",
+        "tenant": "",
+        "username": "",
+        "password": ""
     },
     "Filter": {
         "robot": {
