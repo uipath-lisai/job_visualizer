@@ -74,8 +74,8 @@ Set-Content -Path $data_job -Value $jobString -Encoding UTF8
 
 Write-Host "Saved Job Data to $data_job"
 
-# unresponsive and disconnected robot
-$sessionFilter = "(((Robot%2FType%20eq%20'2')%20and%20(State%20ne%20'2')%20and%20(IsUnresponsive%20eq%20true))%20or%20((State%20eq%20'2')%20and%20(Robot%2FType%20eq%20'2')))"
+# unresponsive and disconnected robot (Robot%2FType%20eq%20'2')%20and%20,%20and%20(Robot%2FType%20eq%20'2')
+$sessionFilter = "(((State%20ne%20'2')%20and%20(IsUnresponsive%20eq%20true))%20or%20((State%20eq%20'2')))"
 $sessionUri = $config.Orchestrator.url + "/odata/Sessions" + '?$expand=Robot&$filter=' + $sessionFilter
 $resSession = Invoke-RestMethod -Uri $sessionUri -Method Get -ContentType $contentType -Headers $headers
 

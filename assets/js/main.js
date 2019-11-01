@@ -376,44 +376,48 @@ $(document).ready(function(){
                 clickClose: false,
                 showClose: true});
         });
+        
+        $("#ur_unresponsive").on("input", function(){
+            $("#ur_limit").html("<span>"+this.value+"</span>");
+            params.ur = this.value;
+        });
+        
+        $("#ar_unresponsive").on("input", function(){
+            $("#ar_limit").html("<span>"+this.value+"</span>");
+            params.ar = this.value;
+        });
+        
+        $("#others_unresponsive").on("input", function(){
+            $("#others_limit").html("<span>"+this.value+"</span>");
+            params.others = this.value;
+        });
+
+        $("#ur_unresponsive").on("change", function(){
+            if(params.ws){
+                show_ws_table(in_out, params);
+            }else{
+                show_robot_table(in_out, params);
+            }
+        });
+        
+        $("#ar_unresponsive").on("change", function(){
+            if(params.ws){
+                show_ws_table(in_out, params);
+            }else{
+                show_robot_table(in_out, params);
+            }
+        });
+        
+        $("#others_unresponsive").on("change", function(){
+            if(params.ws){
+                show_ws_table(in_out, params);
+            }else{
+                show_robot_table(in_out, params);
+            }
+        });
 
         
         $("#removable_robot_modal").on($.modal.OPEN, function(event, modal){
-            $("#ur_unresponsive").on("input", function(){
-                $("#ur_limit").html("<span>"+this.value+"</span>");
-                params.ur = this.value;
-            });
-            $("#ar_unresponsive").on("input", function(){
-                $("#ar_limit").html("<span>"+this.value+"</span>");
-                params.ar = this.value;
-            });
-            $("#others_unresponsive").on("input", function(){
-                $("#others_limit").html("<span>"+this.value+"</span>");
-                params.others = this.value;
-            });
-            
-            $("#ur_unresponsive").on("change", function(){
-                if(params.ws){
-                    show_ws_table(in_out, params);
-                }else{
-                    show_robot_table(in_out, params);
-                }
-            });
-            $("#ar_unresponsive").on("change", function(){
-                if(params.ws){
-                    show_ws_table(in_out, params);
-                }else{
-                    show_robot_table(in_out, params);
-                }
-            });
-            $("#others_unresponsive").on("change", function(){
-                if(params.ws){
-                    show_ws_table(in_out, params);
-                }else{
-                    show_robot_table(in_out, params);
-                }
-            });
-            
             show_robot_table(in_out, params);
         });
         
@@ -455,7 +459,6 @@ $(document).ready(function(){
         var show_robot_table = function(in_out, params){
             in_out.unresponsive_robots = filter_unresponsive_robot(params.ur, params.ar, params.others,in_out.visible_groups);
             if(params.show_table){
-                $("#table_unresponsive_robot").html("");
                 $("#table_unresponsive_robot").footable({
                     "columns": [
                         { "name": "robot_name", "title": "Robot Name", "breakpoints": "xs" },
@@ -480,14 +483,13 @@ $(document).ready(function(){
                 var csv = Papa.unparse(csvdata);
                 $("#csv_unresponsive_robot").text(csv);    
             }
-            
+            $("#unresponsive_count").html("<span>" + in_out.unresponsive_robots.length + "</span>");
         }
         
         var show_ws_table = function(in_out, params){
             in_out.unresponsive_robots = join_robot_ws(in_out.visible_groups, copy_json(params.ws_json), params.ar, params.ur);
             in_out.unresponsive_robots = filter_unresponsive_robot(params.ur, params.ar, params.others,in_out.unresponsive_robots);
             if(params.show_table){
-                $("#table_unresponsive_robot").html("");
                 $("#table_unresponsive_robot").footable({
                     "columns": [
                         { "name": "workspace_id", "title": "Workspace ID", "breakpoints": "xs"},
@@ -516,6 +518,7 @@ $(document).ready(function(){
                 var csv = Papa.unparse(csvdata);
                 $("#csv_unresponsive_robot").text(csv);    
             }
+            $("#unresponsive_count").html("<span>" + in_out.unresponsive_robots.length + "</span>");
         }
     };
     
